@@ -1,0 +1,25 @@
+import numpy as np
+# PHẦN 1: HÀM THUẬT TOÁN RK3
+def rk3(f, a, b, y0, n) -> tuple[np.ndarray, np.ndarray]: #trang 138 thuật toán 11 dòng 1 
+    h = (b - a) / n
+    x = [a]
+    y = [y0]
+    # Công thức RK3: ( trong giáo trình ct (6.20))
+    # K1 = h * f(x, y)
+    # K2 = h * f(x + h/2, y + K1/2)
+    # K3 = h * f(x + h, y - K1 + 2*K2)
+    # y_{n+1} = y_n + 1/6*(K1 + 4*K2 + K3)
+    
+    K1 = [h * f(a, y0)]
+    K2 = [h * f(a + h/2, y0 + K1[-1]/2)]
+    K3 = [h * f(a + h, y0 - K1[-1] + 2 * K2[-1])]
+    
+    for i in range(n): #tương tự thuật toán 11 
+        x.append(x[-1] + h)
+        y.append(y[-1] + 1/6 * (K1[-1] + 4 * K2[-1] + K3[-1]))
+        
+        K1.append(h * f(x[-1], y[-1]))
+        K2.append(h * f(x[-1] + h/2, y[-1] + K1[-1]/2))
+        K3.append(h * f(x[-1] + h, y[-1] - K1[-1] + 2 * K2[-1]))
+        
+    return np.array(x), np.array(y)
