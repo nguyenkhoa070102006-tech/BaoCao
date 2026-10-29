@@ -1,5 +1,22 @@
 import numpy as np
 
+# Phuong phap Runge-Kutta bac 3
+def rk3(f, x, y, h):
+    K1 = h * f(x, y)
+    K2 = h * f(x + h / 2, y + K1 / 2)
+    K3 = h * f(x + h, y - K1 + 2 * K2)
+    return y + (K1 + 4 * K2 + K3) / 6
+
+
+# Phuong phap Runge-Kutta bac 4
+def rk4(f, x, y, h):
+    K1 = h * f(x, y)
+    K2 = h * f(x + h / 2, y + K1 / 2)
+    K3 = h * f(x + h / 2, y + K2 / 2)
+    K4 = h * f(x + h, y + K3)
+    return y + (K1 + 2 * K2 + 2 * K3 + K4) / 6
+
+
 def rk_table(method, f, a, b, y0, n) -> list[dict]:
     """
     Xuat bang tinh tay cua phuong phap Runge-Kutta bac 3 hoac bac 4.
@@ -30,10 +47,11 @@ def rk_table(method, f, a, b, y0, n) -> list[dict]:
             - Tinh nghiem y_(i+1).
             - Luu cac gia tri vao bang.
             - Cap nhat x, y cho buoc tiep theo.
-        5. Tra ve bang tinh tay 
+        5. Tra ve bang tinh tay
     """
+
     # BUOC 1: KIEM TRA DIEU KIEN DAU VAO
- 
+
     # Kiem tra n phai la so nguyen duong.
     if not isinstance(n, (int, np.integer)) or isinstance(n, bool):
         raise TypeError("n phai la so nguyen.")
@@ -57,7 +75,7 @@ def rk_table(method, f, a, b, y0, n) -> list[dict]:
     method_name = method.__name__
 
     if method_name not in ("rk3", "rk4"):
-        raise ValueError("method phai la rk3 hoac rk4.")
+        raise ValueError("method phai la ham rk3 hoac rk4.")
 
     # BUOC 2: KHOI TAO GIA TRI
 
@@ -168,22 +186,16 @@ def rk_table(method, f, a, b, y0, n) -> list[dict]:
     # BUOC 5: TRA VE BANG TINH TAY
     return table
 
+
 # Phuong trinh vi phan
-    def f(x, y):
-         return y - x**2 + 1
+def f(x, y):
+    return y - x**2 + 1
 
 # Xuat bang tinh tay RK3
-    table_rk3 = rk_table(rk3, f, 0, 2, 0.5, 10)
+table_rk3 = rk_table(rk3, f, 0, 2, 0.5, 10)
 
 # Xuat bang tinh tay RK4
-    table_rk4 = rk_table(rk4, f, 0, 2, 0.5, 10)
+table_rk4 = rk_table(rk4, f, 0, 2, 0.5, 10)
+              
 
-# In bang RK3
-print("BANG TINH TAY RK3")
-for row in table_rk3:
-    print(row)
 
-# In bang RK4
-print("\nBANG TINH TAY RK4")
-for row in table_rk4:
-    print(row)
