@@ -31,6 +31,7 @@ def rk_table(method, f, a, b, y0, n) -> list[dict]:
             - Luu cac gia tri vao bang.
             - Cap nhat x, y cho buoc tiep theo.
         5. Tra ve bang tinh tay 
+    """
     # BUOC 1: KIEM TRA DIEU KIEN DAU VAO
  
     # Kiem tra n phai la so nguyen duong.
