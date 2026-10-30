@@ -1,22 +1,7 @@
-
-
 import numpy as np
 
-# Phuong phap Runge-Kutta bac 3
-def rk3(f, x, y, h):
-    K1 = h * f(x, y)
-    K2 = h * f(x + h / 2, y + K1 / 2)
-    K3 = h * f(x + h, y - K1 + 2 * K2)
-    return y + (K1 + 4 * K2 + K3) / 6
-
-
-# Phuong phap Runge-Kutta bac 4
-def rk4(f, x, y, h):
-    K1 = h * f(x, y)
-    K2 = h * f(x + h / 2, y + K1 / 2)
-    K3 = h * f(x + h / 2, y + K2 / 2)
-    K4 = h * f(x + h, y + K3)
-    return y + (K1 + 2 * K2 + 2 * K3 + K4) / 6
+from rk3 import rk3
+from rk4 import rk4
 
 
 def rk_table(method, f, a, b, y0, n) -> list[dict]:
@@ -77,16 +62,15 @@ def rk_table(method, f, a, b, y0, n) -> list[dict]:
     method_name = method.__name__
 
     if method_name not in ("rk3", "rk4"):
-        raise ValueError("method phai la ham rk3 hoac rk4.")
+        raise ValueError("method phai la rk3 hoac rk4.")
 
     # BUOC 2: KHOI TAO GIA TRI
 
     # Tinh buoc chia h = (b - a) / n.
     h = (b - a) / n
 
-    # Khoi tao gia tri ban dau.
-    x = a
-    y = y0
+    # Goi ham rk3 hoac rk4 cua SV1 va SV2 theo dung chu ky (f, a, b, y0, n)
+    x_values, y_values = method(f, a, b, y0, n)
 
     # Danh sach luu bang tinh tay.
     table = []
@@ -94,6 +78,8 @@ def rk_table(method, f, a, b, y0, n) -> list[dict]:
     # BUOC 3: LAP QUA CAC BUOC TINH
 
     for i in range(n):
+        x = x_values[i]
+        y = y_values[i]
 
         # Khoi tao mot dong bang voi cac gia tri hien tai.
         row = {
@@ -180,10 +166,6 @@ def rk_table(method, f, a, b, y0, n) -> list[dict]:
 
         # Them dong vao bang tinh tay.
         table.append(row)
-
-        # Cap nhat x, y cho buoc tinh tiep theo.
-        x = x_next
-        y = y_next
 
     # BUOC 5: TRA VE BANG TINH TAY
     return table
