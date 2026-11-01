@@ -1,5 +1,5 @@
 """
-PHẦN BÀI TOÁN ỨNG DỤNG (SINH VIÊN 7 - NHÓM 8)
+PHẦN BÀI TOÁN ỨNG DỤNG
 Đề tài: Giải bài toán truyền nhiệt của chi tiết máy trong buồng làm mát
 (Định luật làm nguội Newton với nhiệt độ môi trường biến thiên tuần hoàn)
 bằng phương pháp Runge-Kutta bậc 3 và bậc 4.
@@ -51,9 +51,9 @@ def _validate_real_params(**kwargs) -> None:
             raise TypeError(f"Tham số '{name}' phải là một số thực.")
 
 
-# ==============================================================================
+
 # 1. CÁC HÀM MÔ HÌNH HÓA BÀI TOÁN ỨNG DỤNG
-# ==============================================================================
+
 
 def cooling_ode(
     t: float | np.ndarray,
@@ -154,9 +154,9 @@ def cooling_exact(
     return particular_sol(t) + homogeneous_part
 
 
-# ==============================================================================
+
 # 2. HÀM CHẠY VÀ SO SÁNH CÁC PHƯƠNG PHÁP (RK3, RK4, NGHIỆM ĐÚNG, SCIPY)
-# ==============================================================================
+
 
 def solve_cooling_application(
     a: float = 0.0,
@@ -511,9 +511,9 @@ def analyze_stability_comparison(
     return results
 
 
-# ==============================================================================
+
 # 3. HÀM VẼ ĐỒ THỊ MINH HỌA KẾT QUẢ ỨNG DỤNG (DÙNG CHO BÁO CÁO & SLIDE)
-# ==============================================================================
+
 
 def plot_application_results(
     save_path: str = "app_cooling_analysis.png",
@@ -620,9 +620,9 @@ def plot_application_results(
     ax_ins.legend(fontsize=6.2, loc="lower left", framealpha=0.85)
     ax_ins.grid(True, linestyle=":", alpha=0.5)
 
-    # --------------------------------------------------------------------------
+
     # Hình 2: Sai số tuyệt đối theo thời gian (thang logarit) + các vùng đổi dấu
-    # --------------------------------------------------------------------------
+
     ax2 = axes[1]
     ax2.semilogy(res["t"][1:], res["err_rk3"][1:], "bo-", ms=4, label="Sai số tuyệt đối RK3")
     ax2.semilogy(res["t"][1:], res["err_rk4"][1:], "r^-", ms=4, label="Sai số tuyệt đối RK4")
@@ -653,9 +653,9 @@ def plot_application_results(
     ax2.grid(True, which="both", linestyle="--", alpha=0.5)
     ax2.legend(fontsize=8.5, loc="center left")
 
-    # --------------------------------------------------------------------------
+
     # Hình 3: Tốc độ hội tụ theo bước lưới h (thang log-log)
-    # --------------------------------------------------------------------------
+
     ax3 = axes[2]
     h_vals = np.array([r["h"] for r in conv["records"]])
     e3_vals = np.array([r["err_rk3_b"] for r in conv["records"]])
@@ -688,9 +688,9 @@ def plot_application_results(
     plt.close(fig)
 
 
-# ==============================================================================
+
 # 4. CHƯƠNG TRÌNH CHÍNH (IN KẾT QUẢ THỰC NGHIỆM)
-# ==============================================================================
+
 
 if __name__ == "__main__":
     print("=" * 96)
