@@ -4,7 +4,7 @@ def rk4(f, a, b, y0, n) -> tuple[np.ndarray, np.ndarray]:
     """
     Phương pháp Runge-Kutta bậc 4 giải phương trình vi phân y' = f(x, y).
 
-    Tham khảo: Thuật toán Runge-Kutta bậc 4.
+     Thuật toán Runge-Kutta bậc 4.
 
     Require:
         f: Hàm số f(x, y) trong phương trình vi phân y' = f(x, y).
