@@ -1,7 +1,8 @@
 import numpy as np
 
 #ham order_estimate
-def order_estimate(method, f, a, b, y0, n_list) -> list[float]:  #muc chu ky ham
+
+def order_estimate(method, f, a, b, y0, y_exact, n_list) -> list[float]:  # muc chu ky ham
     """
     Uoc luong bac hoi tu thuc nghiem cua phuong phap RK.
 
@@ -9,18 +10,19 @@ def order_estimate(method, f, a, b, y0, n_list) -> list[float]:  #muc chu ky ham
         method: ham rk3 hoac rk4.
         f: ham trong phuong trinh y' = f(x, y).
         a < b, y0 la dieu kien ban dau.
+        y_exact: ham nghiem chinh xac.
         n_list: danh sach so buoc nguyen duong, tang gap doi.
 
     Ensure:
         Tra ve danh sach bac hoi tuong ung voi cac cap
         so buoc lien tiep trong n_list.
-        Moi phan tu duoc tinh tu sai khac hai luoi.
+        Moi phan tu duoc tinh tu sai so so voi nghiem chinh xac.
 
     Thuat toan:
-        Uoc luong bac hoi tu bang log2(D_n / D_2n).
+        Uoc luong bac hoi tu bang log2(e(h) / e(h/2)).
     """
     # Kiem tra dieu kien dau vao.
-    if a >= b:                                     #R6-xu ly tinh huong bien
+    if a >= b:                                     # R6-xu ly tinh huong bien
         raise ValueError("Can thoa man a < b.")
 
     if not n_list:
@@ -34,36 +36,33 @@ def order_estimate(method, f, a, b, y0, n_list) -> list[float]:  #muc chu ky ham
            for i in range(len(n_list) - 1)):
         raise ValueError("Cac phan tu n_list phai tang gap doi.")
 
-    # Tinh sai khac D_n = |y_n(b) - y_2n(b)|.
+    # Tinh sai so e(h) = |y_exact(b) - y_n(b)|.
     errors = []
 
     for n in n_list:
-        # Luoi tho co n buoc.
-        _, y_coarse = method(f, a, b, y0, n)       #ham rk3,rk4 cua sv1,sv2
+        # Luoi co n buoc.
+        _, y_coarse = method(f, a, b, y0, n)       # ham rk3, rk4 cua sv1, sv2
 
-        # Luoi min co 2n buoc.
-        _, y_fine = method(f, a, b, y0, 2 * n)     #cong thuc buoc luoi: dung 2n buoc de co h/2
+        # Sai so so voi nghiem chinh xac tai diem cuoi b.
+        e_n = abs(y_exact(b) - y_coarse[-1])        # cong thuc sai so trong P4
+        errors.append(e_n)
 
-        # Sai khac giua hai nghiem tai diem cuoi b.
-        D_n = abs(y_coarse[-1] - y_fine[-1])        #cong thuc uoc luong sai khac hai luoi trong p4. Tinh Dn=|y_n(b)-y_2n(b)|
-        errors.append(D_n)
-
-    # Tinh bac hoi tu tu hai sai khac lien tiep.
+    # Tinh bac hoi tu tu hai sai so lien tiep.
     orders = []
 
     for i in range(len(errors) - 1):
         if errors[i] > 0 and errors[i + 1] > 0:
-            p = np.log2(errors[i] / errors[i + 1]) #cong thuc p4 trong de
+            p = np.log2(errors[i] / errors[i + 1]) # cong thuc P4
             orders.append(float(p))
         else:
             raise ArithmeticError(
-                "Khong the uoc luong bac hoi tu khi sai khac bang 0."
+                "Khong the uoc luong bac hoi tu khi sai so bang 0."
             )
 
     return orders
 
 #ham step_for_tol
-def step_for_tol(method, f, a, b, y0, tol) -> tuple[float, float]:     #muc chu ky ham
+def step_for_tol(method, f, a, b, y0, tol) -> tuple[float, float]:  # muc chu ky ham
     """
     Tim buoc luoi lon nhat trong day chia doi thoa man
     sai khac giua hai nghiem tren luoi h va h/2 khong vuot tol.
@@ -71,7 +70,8 @@ def step_for_tol(method, f, a, b, y0, tol) -> tuple[float, float]:     #muc chu 
     Require:
         method: ham rk3 hoac rk4.
         f: ham trong phuong trinh y' = f(x, y).
-        a < b, tol > 0.
+        a < b, y0 la dieu kien ban dau.
+        tol: nguong sai so cho phep, tol > 0.
 
     Ensure:
         Tra ve (h, y_b), trong do h la buoc luoi duoc chap nhan
@@ -82,7 +82,7 @@ def step_for_tol(method, f, a, b, y0, tol) -> tuple[float, float]:     #muc chu 
         Neu chua dat, tang n gap doi va lap lai.
     """
     # Kiem tra dieu kien dau vao.
-    if a >= b:                                   #R6: kiem tra dieu kien khoang tinh toan
+    if a >= b:                                   # R6: kiem tra dieu kien khoang tinh toan
         raise ValueError("Can thoa man a < b.")
 
     if tol <= 0:
@@ -94,13 +94,13 @@ def step_for_tol(method, f, a, b, y0, tol) -> tuple[float, float]:     #muc chu 
 
     while n <= max_n:
         # Nghiem tren luoi tho co n buoc.
-        _, y_coarse = method(f, a, b, y0, n)       #rk3,rk4 cua sv1,sv2
+        _, y_coarse = method(f, a, b, y0, n)       # rk3, rk4 cua sv1, sv2
 
         # Nghiem tren luoi min co 2n buoc.
-        _, y_fine = method(f, a, b, y0, 2 * n)      #yeu cau cua p4: tinh nghiem voi 2n buoc de so sanh buoc h va h/2
+        _, y_fine = method(f, a, b, y0, 2 * n)     # chia doi buoc luoi h thanh h/2
 
         # Uoc luong sai khac tai diem cuoi b.
-        error_estimate = abs(y_coarse[-1] - y_fine[-1])  #cong thuc p4: tinh En=|y_n(b)-y_2n(b)|
+        error_estimate = abs(y_coarse[-1] - y_fine[-1])  # cong thuc P4: En=|y_n(b)-y_2n(b)|
 
         # Neu dat nguong, tra ve buoc luoi lon hon h.
         if error_estimate <= tol:
