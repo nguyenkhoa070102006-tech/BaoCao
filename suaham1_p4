@@ -1,0 +1,61 @@
+import numpy as np
+
+
+def order_estimate(method, f, a, b, y0, y_exact, n_list) -> list[float]:  # muc chu ky ham
+    """
+    Uoc luong bac hoi tu thuc nghiem cua phuong phap RK.
+
+    Require:
+        method: ham rk3 hoac rk4.
+        f: ham trong phuong trinh y' = f(x, y).
+        a < b, y0 la dieu kien ban dau.
+        y_exact: ham nghiem chinh xac.
+        n_list: danh sach so buoc nguyen duong, tang gap doi.
+
+    Ensure:
+        Tra ve danh sach bac hoi tuong ung voi cac cap
+        so buoc lien tiep trong n_list.
+        Moi phan tu duoc tinh tu sai so so voi nghiem chinh xac.
+
+    Thuat toan:
+        Uoc luong bac hoi tu bang log2(e(h) / e(h/2)).
+    """
+    # Kiem tra dieu kien dau vao.
+    if a >= b:                                     # R6-xu ly tinh huong bien
+        raise ValueError("Can thoa man a < b.")
+
+    if not n_list:
+        raise ValueError("n_list khong duoc rong.")
+
+    if any(not isinstance(n, (int, np.integer))
+           or isinstance(n, bool) or n <= 0 for n in n_list):
+        raise ValueError("Moi so buoc trong n_list phai la so nguyen duong.")
+
+    if any(n_list[i + 1] != 2 * n_list[i]
+           for i in range(len(n_list) - 1)):
+        raise ValueError("Cac phan tu n_list phai tang gap doi.")
+
+    # Tinh sai so e(h) = |y_exact(b) - y_n(b)|.
+    errors = []
+
+    for n in n_list:
+        # Luoi co n buoc.
+        _, y_coarse = method(f, a, b, y0, n)       # ham rk3, rk4 cua sv1, sv2
+
+        # Sai so so voi nghiem chinh xac tai diem cuoi b.
+        e_n = abs(y_exact(b) - y_coarse[-1])        # cong thuc sai so trong P4
+        errors.append(e_n)
+
+    # Tinh bac hoi tu tu hai sai so lien tiep.
+    orders = []
+
+    for i in range(len(errors) - 1):
+        if errors[i] > 0 and errors[i + 1] > 0:
+            p = np.log2(errors[i] / errors[i + 1]) # cong thuc P4
+            orders.append(float(p))
+        else:
+            raise ArithmeticError(
+                "Khong the uoc luong bac hoi tu khi sai so bang 0."
+            )
+
+    return orders
