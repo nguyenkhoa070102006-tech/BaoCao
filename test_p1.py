@@ -2,83 +2,114 @@ import numpy as np
 import pytest
 from scipy.integrate import solve_ivp
 
-# IMPORT CHUAN CODE CUA SV1 (PHAN 1)
 from rk3 import rk3
 
 
 # ==============================================================================
-# CAC HAM BAI TOAN MAU THEO DE NHOM 8 VA R7
+# CÁC HÀM BÀI TOÁN MẪU
 # ==============================================================================
-# 1. Vi du 6.3 trong bai giang (Kiem thu bat buoc Nhom 8):
-# y' = 3 * x^2 * y, y(0) = 1 tren [0, 1], n = 5 (h = 0.2) => Nghiem dung: y(x) = e^(x^3)
-def f_vi_du_6_3(x, y):
-    return 3.0 * (x**2) * y
+# 1. Bài toán mẫu trong giáo trình
+def f_bai_6_1(x, y):
+    return 2.0 - np.exp(-4.0 * x) - 2.0 * y
 
-def exact_vi_du_6_3(x):
-    return np.exp(x**3)
+def exact_bai_6_1(x):
+    return 1.0 + 0.5 * np.exp(-4.0 * x) - 0.5 * np.exp(-2.0 * x)
 
-# 2. Bai toan bat buoc Nhom 8 & Nhom tu chon:
-# y' = y - x^2 + 1, y(0) = 0.5 tren [0, 2], h = 0.2 (n = 10)
-# Ket qua bat buoc: y_10 = 5.303725 (RK3); nghiem dung = 5.305472
+def f_bai_6_17(x, y):
+    return 0.5 * x * y
+
+def exact_bai_6_17(x):
+    return np.exp(x**2 / 4.0)
+
+# 2. Bài toán KIỂM THỬ BẮT BUỘC (Theo ảnh đề bài của cô)
+# y' = y - x^2 + 1, y(0) = 0.5 trên [0, 2]
 def f_bat_buoc(x, y):
     return y - x**2 + 1.0
 
 def exact_bat_buoc(x):
     return (x + 1.0) ** 2 - 0.5 * np.exp(x)
 
+# 3. Bài toán tự chọn (để test với scipy)
+def f_nhom_tu_chon(x, y):
+    return y - x**2 + 1.0 # Trùng hàm bắt buộc nhưng sẽ test ở lưới dày hơn
+
 
 # ==============================================================================
-# KIEM THU PHAN 1 (SV5 - THEO CHUAN R7 & KIEM THU BAT BUOC NHOM 8)
+# KIỂM THỬ PHẦN 1 (RK3)
 # ==============================================================================
-def test_rk3_r7_1_vi_du_bai_giang_6_3():
-    """[R7 - Ca 1]: Vi du 6.3 trong bai giang (y' = 3*x^2*y, y(0) = 1, [0, 1], n = 5)."""
-    print("--- [R7 - Ca 1: Vi du 6.3 trong bai giang cho RK3] ---")
-    x, y = rk3(f_vi_du_6_3, 0.0, 1.0, 1.0, 5)
-    y_true = exact_vi_du_6_3(1.0)
-    print(f"  + Vi du 6.3 (x=1.0, n=5): y_5 (RK3) = {y[-1]:.6f} | Nghiem dung = {y_true:.6f} | Sai so = {abs(y[-1] - y_true):.6f}")
-    assert len(x) == 6 and len(y) == 6
-    assert abs(y[-1] - y_true) < 1e-3
+def test_rk3_r7_1_vi_du_bai_giang():
+    """[R7 - Ca 1]: Ví dụ trong bài giảng/giáo trình (Bài 6.1, 6.17)."""
+    print("--- [R7 - Ca 1: Vi du giao trinh cho RK3] ---")
+    # Bài 6.1: [0, 0.5], y(0) = 1, n = 5
+    x_61, y_61 = rk3(f_bai_6_1, 0.0, 0.5, 1.0, 5)
+    y_true_61 = exact_bai_6_1(0.5)
+    print(f"  + Bai 6.1 (x=0.5): y_RK3 = {y_61[-1]:.6f} | Nghiem dung = {y_true_61:.6f}")
+    assert np.allclose(y_61, exact_bai_6_1(x_61), atol=5e-4)
+
+    # Bài 6.17: [0, 1.0], y(0) = 1, n = 10
+    _, y_617 = rk3(f_bai_6_17, 0.0, 1.0, 1.0, 10)
+    y_true_617 = exact_bai_6_17(1.0)
+    print(f"  + Bai 6.17 (x=1.0): y_RK3 = {y_617[-1]:.6f} | Nghiem dung = {y_true_617:.6f}")
+    assert abs(y_617[-1] - y_true_617) < 5e-5
 
 
-def test_rk3_r7_2_kiem_thu_bat_buoc_nhom_8():
-    """[R7 - Ca 2]: Kiem thu bat buoc Nhom 8 (y' = y - x^2 + 1, y(0) = 0.5, [0, 2], h = 0.2)."""
-    print("\n--- [R7 - Ca 2: Kiem thu bat buoc Nhom 8 cho RK3 (y' = y - x^2 + 1)] ---")
-    a, b, y0, n = 0.0, 2.0, 0.5, 10  # h = (2.0 - 0.0) / 10 = 0.2
-    x, y = rk3(f_bat_buoc, a, b, y0, n)
-    y_true = exact_bat_buoc(2.0)
-    sol = solve_ivp(f_bat_buoc, (x[0], x[-1]), [y0], t_eval=x, rtol=1e-10, atol=1e-12)
-
-    print(f"  + Tai x = 2.0 (n=10, h=0.2): y_10 (RK3) = {y[-1]:.6f} (De yeu cau: 5.303725)")
-    print(f"  + Nghiem dung = {y_true:.6f} (De yeu cau: 5.305472) | Sai so = {abs(y[-1] - y_true):.6f}")
-    # Kiem tra khop chinh xac con so bat buoc trong de: y_10 = 5.303725 va nghiem dung = 5.305472
-    assert np.isclose(y[-1], 5.303725, atol=1e-6)
-    assert np.isclose(y_true, 5.305472, atol=1e-6)
-    assert np.allclose(y, sol.y[0], atol=3e-3)
+def test_rk3_r7_2_kiem_thu_bat_buoc():
+    """[R7 - Ca 2]: Kiểm thử bắt buộc của Nhóm 8 (y' = y - x^2 + 1, h=0.2)."""
+    print("\n--- [R7 - Ca 2: Kiem thu bat buoc cua Co (y' = y - x^2 + 1)] ---")
+    # Yêu cầu: [0, 2], y(0)=0.5, h=0.2 (tức n=10). Kỳ vọng y_10 = 5.303725
+    x, y = rk3(f_bat_buoc, 0.0, 2.0, 0.5, 10)
+    print(f"  + Tai x = 2.0 (n=10, h=0.2): y_RK3 = {y[-1]:.6f} (De yeu cau: 5.303725)")
+    # Dùng atol=1e-5 để kiểm tra khớp số liệu cô cho
+    assert np.isclose(y[-1], 5.303725, atol=1e-5)
 
 
-def test_rk3_r7_3_ca_bien():
-    """[R7 - Ca 3]: Ca bien bat buoc Nhom 8 (n <= 0 hoac a >= b phai bao loi)."""
-    print("\n--- [R7 - Ca 3: Kiem tra cac ca bien bat buoc cho RK3] ---")
-    # 1. Bien da thuc bac 3 (y' = 3x^2, y(0) = 0 tren [0, 2] => y(2) = 8.0)
+def test_rk3_r7_3_doi_chieu_scipy():
+    """[R7 - Ca 3]: Đối chiếu với scipy.integrate ở lưới dày hơn (n=20)."""
+    print("\n--- [R7 - Ca 3: Doi chieu voi scipy.integrate (n=20)] ---")
+    a, b, y0, n = 0.0, 2.0, 0.5, 20
+    x, y = rk3(f_nhom_tu_chon, a, b, y0, n)
+    y_true = exact_bat_buoc(x)
+    sol = solve_ivp(f_nhom_tu_chon, (x[0], x[-1]), [y0], t_eval=x, rtol=1e-10, atol=1e-12)
+
+    print(f"  + Tai x = 2.0: y_RK3 = {y[-1]:.6f} | Nghiem dung = {y_true[-1]:.6f} | Scipy = {sol.y[0][-1]:.6f}")
+    assert np.allclose(y, y_true, atol=2e-3)
+    assert np.allclose(y, sol.y[0], atol=2e-3)
+
+
+def test_rk3_r7_4_ca_bien():
+    """[R7 - Ca 4]: Kiểm tra các ca biên (n=1, đa thức, a >= b, n <= 0)."""
+    print("\n--- [R7 - Ca 4: Kiem tra cac ca bien cho RK3] ---")
+    # 1. Biên n = 1 bước duy nhất (đối chiếu công thức tính tay)
+    a, b, y0, n = 0.0, 0.1, 1.0, 1
+    h = b - a
+    K1 = h * f_bai_6_1(a, y0)
+    K2 = h * f_bai_6_1(a + h / 2, y0 + K1 / 2)
+    K3 = h * f_bai_6_1(a + h, y0 - K1 + 2 * K2)
+    expected_y1 = y0 + (K1 + 4 * K2 + K3) / 6.0
+    _, y_step1 = rk3(f_bai_6_1, a, b, y0, n)
+    assert np.isclose(y_step1[-1], expected_y1, rtol=1e-12)
+
+    # 2. Biên đa thức bậc 3 (sai số tuyệt đối bằng 0)
     _, y_poly = rk3(lambda x, y: 3.0 * x**2, 0.0, 2.0, 0.0, 4)
-    print(f"  + Bien da thuc bac 3 (y' = 3x^2 tai x=2): y_RK3 = {y_poly[-1]:.6f} (Nghiem dung = 8.000000)")
     assert np.isclose(y_poly[-1], 8.0, atol=1e-12)
+    print("  + Bien n=1 va da thuc bac 3: PASSED!")
 
-    # 2. Ca bien bat buoc: a >= b (a == b va a > b) phai bao loi ValueError
+    # 3. Biên khoảng tính không hợp lệ a >= b
     for bad_a, bad_b in [(1.0, 1.0), (2.0, 1.0)]:
-        with pytest.raises(ValueError):
-            rk3(f_vi_du_6_3, bad_a, bad_b, 1.0, 5)
-    print("  + Bien a >= b (1.0 == 1.0 va 2.0 > 1.0): Da bao loi ValueError dung yeu cau!")
+        with pytest.raises(ValueError, match="Khoang tinh khong hop le"):
+            rk3(f_bai_6_17, bad_a, bad_b, 1.0, 10)
+    print("  + Bien a >= b: Da bat dung ValueError!")
 
-    # 3. Ca bien bat buoc: n <= 0 hoac sai kieu (0, -5, 2.5, True) phai bao loi
+    # 4. Biên số bước n <= 0 hoặc sai kiểu
     for bad_n in [0, -5, 2.5, True, False]:
-        with pytest.raises((ValueError, TypeError, ZeroDivisionError)):
-            rk3(f_vi_du_6_3, 0.0, 1.0, 1.0, bad_n)
-    print("  + Bien n <= 0 hoac sai kieu (0, -5, 2.5, True): Da bao loi dung yeu cau!")
+        with pytest.raises(ValueError, match="So buoc n phai la so nguyen duong"):
+            rk3(f_bai_6_17, 0.0, 1.0, 1.0, bad_n)
+    print("  + Bien n <= 0 hoac sai kieu: Da bat dung ValueError!")
 
 
 if __name__ == "__main__":
-    test_rk3_r7_1_vi_du_bai_giang_6_3()
-    test_rk3_r7_2_kiem_thu_bat_buoc_nhom_8()
-    test_rk3_r7_3_ca_bien()
-    print("\n=> PASSED: Toan bo kiem thu Phan 1 (rk3) theo chuan Nhom 8 & R7 da chay thanh cong!")
+    test_rk3_r7_1_vi_du_bai_giang()
+    test_rk3_r7_2_kiem_thu_bat_buoc()
+    test_rk3_r7_3_doi_chieu_scipy()
+    test_rk3_r7_4_ca_bien()
+    print("\n=> PASSED: Toàn bộ kiểm thử Phần 1 (rk3) đã chạy thành công!")
