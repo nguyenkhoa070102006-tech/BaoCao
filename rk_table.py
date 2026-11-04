@@ -170,16 +170,16 @@ def rk_table(method, f, a, b, y0, n) -> list[dict]:
     # BUOC 5: TRA VE BANG TINH TAY
     return table
 
+if __name__ == "__main__":
+    # Phuong trinh vi phan
+    def f(x, y):
+        return y - x**2 + 1
 
-# Phuong trinh vi phan
-def f(x, y):
-    return y - x**2 + 1
+    # Xuat bang tinh tay RK3
+    table_rk3 = rk_table(rk3, f, 0, 2, 0.5, 10)
 
-# Xuat bang tinh tay RK3
-table_rk3 = rk_table(rk3, f, 0, 2, 0.5, 10)
-
-# Xuat bang tinh tay RK4
-table_rk4 = rk_table(rk4, f, 0, 2, 0.5, 10)
+    # Xuat bang tinh tay RK4
+    table_rk4 = rk_table(rk4, f, 0, 2, 0.5, 10)
 
             
               
