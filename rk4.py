@@ -28,10 +28,14 @@ def rk4(f, a, b, y0, n) -> tuple[np.ndarray, np.ndarray]:
     h = (b-a)/n
     x = [a]
     y = [y0]
-
+    # Thuật toán Runge-Kutta bậc 4 trang 138
+    # K1 = [h*func(a,y0)]
     K1 = [h*f(a,y0)]
+    # K2 = [h*func(a + h/2 , y0 + k1[-1]/2)]
     K2 = [h*f(a+h/2,y0+K1[-1]/2)]
+    # K3 = [h*func(a + h/2 , y0 + k2[-1]/2]
     K3 = [h*f(a+h/2,y0+K2[-1]/2)]
+    # K4 = [h*func(a+h),y0 + K3[-1]]
     K4 = [h*f(a+h,y0+K3[-1])]
 
     for i in range(n): # tương tự thuật toán 11
