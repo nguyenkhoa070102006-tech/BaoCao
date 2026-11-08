@@ -33,12 +33,12 @@ Dự án tập trung vào phương pháp Runge-Kutta bậc 3 (RK3), Runge-Kutta 
 | :--- | :--- | :--- | :--- | :--- |
 | SV1 | Nguyễn Thị Ngọc Anh | 243030509 | Cài đặt thuật toán RK3 | rk3.py |
 | SV2 | Vũ Minh Ánh | 243030510 | Cài đặt thuật toán RK4 | rk4.py |
-| SV3 | Lê Tường Vy] | 243030562 | Xuất bảng tính tay | rk_table.py |
+| SV3 | Lê Tường Vy | 243030562 | Xuất bảng tính tay | rk_table.py |
 | SV4 | Phạm Khánh Huyền | 243030529 | Ước lượng bậc & Tìm bước h | uocluong.py |
-| SV5 | Trương Gia Bảo] | 243030511 | Bộ kiểm thử pytest toàn nhóm, slide | test_p1.py đến test_p4.py |
+| SV5 | Trương Gia Bảo | 243030511 | Bộ kiểm thử pytest toàn nhóm, slide | test_p1.py đến test_p4.py |
 | SV6 | Nguyễn Công Kỳ | 243030533 | Thực nghiệm so sánh, đồ thị log-log | thuc_nghiem.py |
 | SV7 | Kiều Minh Công | 243024441 | Bài toán ứng dụng (Vật rơi), thuyết trình | bai_toan_ung_dung_sv7.py |
-| SV8 | Nguyễn Hữu Khoa | 243030532 | Trưởng nhóm: Tạo repo, tích hợp, chuẩn hóa , readme, gộp báo cáo |  README.md |
+| SV8 | Nguyễn Hữu Khoa | 243030532 |  Tạo repo, tích hợp, chuẩn hóa , readme, gộp báo cáo |  README.md |
 
 ## 5. Yêu cầu hệ thống và Cài đặt
 
