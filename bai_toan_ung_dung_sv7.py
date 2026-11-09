@@ -157,11 +157,11 @@ def plot_application_results(t_95_exact: float, filename: str = "ung_dung_vat_ro
     ax1.plot(t_cont, v_cont, "k-", linewidth=2.0, label="Nghiệm đúng $v(t)$")
     ax1.plot(t_demo, v_rk3_demo, "bs--", markersize=4, label=f"RK3 ($n={N_DEMO}, h={h_demo:g}$ s)")
     ax1.plot(t_demo, v_rk4_demo, "ro:", markersize=4, label=f"RK4 ($n={N_DEMO}, h={h_demo:g}$ s)")
-    ax1.axhline(V_INF, color="purple", linestyle="--", alpha=0.8, label=f"$v_\\infty = {V_INF:.2f}$ m/s")
+    ax1.axhline(V_INF, color="purple", linestyle="--", alpha=0.8, label=f"$v_\\infty = {V_INF:.6f}$ m/s")
     ax1.axhline(0.95 * V_INF, color="forestgreen", linestyle="-.", alpha=0.8,
-                label=f"$0.95 v_\\infty = {0.95 * V_INF:.2f}$ m/s")
+                label=f"$0.95 v_\\infty = {0.95 * V_INF:.6f}$ m/s")
     ax1.axvline(t_95_exact, color="forestgreen", linestyle=":", alpha=0.8,
-                label=f"$t_{{95\\%}} = {t_95_exact:.2f}$ s")
+                label=f"$t_{{95\\%}} = {t_95_exact:.6f}$ s")
     ax1.set_title("Vận tốc vật rơi theo thời gian", fontsize=12, fontweight="bold")
     ax1.set_xlabel("Thời gian $t$ (s)")
     ax1.set_ylabel("Vận tốc $v(t)$ (m/s)")
@@ -199,7 +199,7 @@ def run_application() -> None:
     print(f"Hằng số mô hình: g = {G_CONST} m/s^2, k/m = {K_OVER_M} m^-1, Khoảng xét: [{T_START:g}, {T_END:g}] s")
     print(f"Vận tốc giới hạn v_inf = sqrt(g / (k/m)) = {V_INF:.6f} m/s")
     print(f"Ngưỡng 95% v_inf = {0.95 * V_INF:.6f} m/s")
-    print(f"Nghiệm giải tích tại t = {T_END:g}s: v_exact = {v_exact(T_END):.10f} m/s\n")
+    print(f"Nghiệm giải tích tại t = {T_END:g}s: v_exact = {v_exact(T_END):.6f} m/s\n")
 
     # Nhiệm vụ 1: Tìm bước h để sai số tại t = T_END nhỏ hơn tol
     tol = 1e-6
@@ -217,34 +217,34 @@ def run_application() -> None:
         rows[name] = dict(h=h, n=n, calls=counter["n"], v_end=float(v_g[-1]),
                           err=abs(float(v_exact(T_END)) - float(v_g[-1])), t=t_g, v=v_g)
         if rows[name]["err"] >= tol:
-            print(f"  [Cảnh báo] {name}: sai số thực tế {rows[name]['err']:.2e} >= tol; "
+            print(f"  [Cảnh báo] {name}: sai số thực tế {rows[name]['err']:.6e} >= tol; "
                   f"P4 ước lượng sai số bằng h và h/2 nên có thể chưa đạt.")
 
     fmt = "{:<12} | {:<12} | {:<10} | {:<14} | {:<14} | {:<12}"
     print(fmt.format("Phương pháp", "Bước h (s)", "Số bước n", "Số lần gọi f", "Sai số thực tế", "v(T) xấp xỉ"))
     print("-" * 88)
     for name, r in rows.items():
-        print(fmt.format(name, f"{r['h']:.6f}", str(r["n"]), str(r["calls"]), f"{r['err']:.4e}", f"{r['v_end']:.8f}"))
+        print(fmt.format(name, f"{r['h']:.6f}", str(r["n"]), str(r["calls"]), f"{r['err']:.6e}", f"{r['v_end']:.6f}"))
     print("-" * 88)
     r3, r4 = rows["RK3"], rows["RK4"]
     ratio_calls = r4["calls"] / r3["calls"] * 100.0
     if r4["calls"] < r3["calls"]:
-        verdict = f"RK4 rẻ hơn: số lần gọi f chỉ bằng ~{ratio_calls:.1f}% so với RK3"
+        verdict = f"RK4 rẻ hơn: số lần gọi f chỉ bằng ~{ratio_calls:.6f}% so với RK3"
     elif r4["calls"] > r3["calls"]:
-        verdict = f"RK3 rẻ hơn: RK4 tốn ~{ratio_calls:.1f}% số lần gọi f của RK3"
+        verdict = f"RK3 rẻ hơn: RK4 tốn ~{ratio_calls:.6f}% số lần gọi f của RK3"
     else:
         verdict = "hai phương pháp tốn số lần gọi f bằng nhau"
-    print(f"Nhận xét: h(RK3) = {r3['h']:.4f}s, h(RK4) = {r4['h']:.4f}s; {verdict} "
+    print(f"Nhận xét: h(RK3) = {r3['h']:.6f}s, h(RK4) = {r4['h']:.6f}s; {verdict} "
           f"(với cùng ngưỡng sai số {tol:.0e}).\n")
 
     # Nhiệm vụ 2: Tìm thời điểm đạt 95% v_inf
     print("--- 2. XÁC ĐỊNH THỜI ĐIỂM VẬN TỐC ĐẠT 95% VẬN TỐC GIỚI HẠN (v = 0.95 * v_inf) ---")
     t_95_exact = (V_INF / G_CONST) * float(np.arctanh(0.95))
-    print(f"- Nghiệm giải tích chính xác: t_95 = {t_95_exact:.8f} giây")
+    print(f"- Nghiệm giải tích chính xác: t_95 = {t_95_exact:.6f} giây")
     for name, method in (("RK3", rk3), ("RK4", rk4)):
         r = rows[name]
         t95 = find_time_for_ratio(method, f_falling_body, r["t"], r["v"], V_INF, 0.95)
-        print(f"- Xác định từ {name}:            t_95 = {t95:.8f} giây (lệch: {abs(t95 - t_95_exact):.2e} s)")
+        print(f"- Xác định từ {name}:            t_95 = {t95:.6f} giây (lệch: {abs(t95 - t_95_exact):.6e} s)")
     print()
 
     # Nhiệm vụ 3: Đồ thị
