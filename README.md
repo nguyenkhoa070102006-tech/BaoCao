@@ -47,6 +47,7 @@ Dự án yêu cầu Python 3.10 trở lên.
 Danh sách thư viện bao gồm: numpy, matplotlib, pytest, scipy. Trong đó, thư viện scipy chỉ được sử dụng trong các file kiểm thử (test_p*.py) để đối chiếu kết quả, không sử dụng trong mã nguồn thuật toán chính.
 
 # 6. Hướng dẫn chạy
+Chạy menu chung (chọn thực nghiệm, ứng dụng, kiểm thử): python main.py
 
 Chạy kiểm thử tự động toàn bộ dự án:
 pytest -v
